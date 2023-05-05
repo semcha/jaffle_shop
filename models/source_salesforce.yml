@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: salesforce
+    schema: public
+    loader: ETL Tool
+    tables:
+      - name: raw_customers
+      - name: raw_orders
+      - name: raw_payments

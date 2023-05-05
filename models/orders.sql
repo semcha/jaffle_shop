@@ -1,14 +1,23 @@
+{{
+    config(
+        materialized = 'incremental',
+        unique_key = ['order_id', 'customer_id'],
+        on_schema_change = 'append_new_columns',
+        tags=['main']
+    )
+}}
+
 {% set payment_methods = ['credit_card', 'coupon', 'bank_transfer', 'gift_card'] %}
 
 with orders as (
 
-    select * from {{ ref('stg_orders') }}
+    select * from {{ ref("stg_orders") }}
 
 ),
 
 payments as (
 
-    select * from {{ ref('stg_payments') }}
+    select * from {{ ref("stg_payments") }}
 
 ),
 
@@ -53,4 +62,11 @@ final as (
 
 )
 
-select * from final
+select
+    *
+from
+    final
+{% if is_incremental() -%}
+where
+    order_date >= (select max(order_date) from {{ this }})
+{% endif %}
